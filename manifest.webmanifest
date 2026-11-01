@@ -1,0 +1,11 @@
+{
+  "name": "RouleJuste",
+  "short_name": "RouleJuste",
+  "description": "Savoir avant d'accepter une course si elle est vraiment rentable.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#eef0ec",
+  "theme_color": "#1d2320",
+  "lang": "fr",
+  "icons": [{ "src": "logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

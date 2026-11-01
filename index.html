@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RouleJuste</title>
+<meta name="description" content="Avant d'accepter une course, sache ce qu'il te reste vraiment après commission, essence et usure.">
+<meta name="theme-color" content="#1d2320">
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="logo.svg">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Une colonne façon tableau de bord de moto : bandeau logo + slogan, l'outil, comment ça marche, réglages */
+:root{
+  --bg:#eef0ec; --card:#ffffff; --fg:#1d2320; --muted:#5d6862; --line:#d6dbd5;
+  --band:#1d2320; --band-fg:#ecefea; --band-muted:#a9b3ad;
+  --accent:#e08a00; --accent-ink:#1d2320; --accent-band:#f2a33a;
+  --good:#1f8a4c; --ok:#6f8d1a; --warn:#c77700; --bad:#c23a2b; --verdict-ink:#ffffff;
+  --display:"Barlow Condensed","Arial Narrow",sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#141816; --card:#1d2220; --fg:#ecefea; --muted:#9aa49e; --line:#2f3632;
+  --band:#0c0f0d; --band-fg:#ecefea; --band-muted:#9aa49e;
+  --accent:#f2a33a; --accent-ink:#141816; --accent-band:#f2a33a;
+  --good:#2ea463; --ok:#86a62a; --warn:#d98a14; --bad:#d9503f; color-scheme:dark}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.45}
+.in{max-width:520px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* Bandeau */
+.band{background:var(--band);color:var(--band-fg);padding-top:env(safe-area-inset-top,0px)}
+.band .in{padding-block:16px 26px;display:flex;flex-direction:column;gap:18px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
+.logo svg{width:40px;height:40px;flex:none}
+.logo b{font-family:var(--display);font-weight:800;font-size:28px;letter-spacing:.01em;line-height:1}
+.logo b span{color:var(--accent-band)}
+.slogan{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(34px,10vw,48px);line-height:.95;margin:0;text-wrap:balance;letter-spacing:.005em}
+.slogan em{font-style:normal;color:var(--accent-band)}
+.lead{margin:0;color:var(--band-muted);font-size:16px;max-width:42ch}
+
+main .in{padding-block:20px 8px;display:flex;flex-direction:column;gap:16px}
+h1,h2{font-family:var(--display);font-weight:700;margin:0;line-height:1.05}
+h1{font-size:30px;text-wrap:balance}
+h2{font-size:21px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
+.sub{color:var(--muted);margin:4px 0 0;font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.full{grid-column:1/-1}
+label{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.inp{display:flex;align-items:center;border:2px solid var(--line);border-radius:10px;background:var(--bg);overflow:hidden}
+.inp:focus-within{border-color:var(--accent)}
+.inp input{flex:1;min-width:0;width:100%;border:0;background:transparent;color:var(--fg);font-family:var(--display);font-weight:600;font-size:28px;padding:8px 10px;outline:none;font-variant-numeric:tabular-nums}
+.inp span{padding:0 10px;color:var(--muted);font-size:14px;font-weight:700}
+.hint{font-size:12.5px;color:var(--muted)}
+
+.verdict{border-radius:14px;padding:18px 16px;color:var(--verdict-ink);display:flex;flex-direction:column;gap:6px;transition:background .2s}
+.verdict .tag{font-family:var(--display);font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:.12em;opacity:.92}
+.verdict .big{font-family:var(--display);font-weight:700;font-size:56px;line-height:1;font-variant-numeric:tabular-nums}
+.verdict .big small{font-size:22px;font-weight:600}
+.v-bad{background:var(--bad)} .v-warn{background:var(--warn)} .v-ok{background:var(--ok)} .v-good{background:var(--good)}
+
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.kpi{display:flex;flex-direction:column;gap:2px;min-width:0}
+.kpi b{font-family:var(--display);font-size:26px;font-weight:700;font-variant-numeric:tabular-nums}
+.kpi span{font-size:13px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+td{padding:7px 0;border-bottom:1px solid var(--line);font-size:15px}
+td:last-child{text-align:right;font-weight:700;white-space:nowrap}
+tr.total td{border-bottom:0;font-size:17px;padding-top:10px}
+.minus{color:var(--bad)}
+.scale{display:flex;flex-direction:column;gap:6px;font-size:14px}
+.scale div{display:flex;gap:8px;align-items:center}
+.dot{width:12px;height:12px;border-radius:50%;flex:none}
+.steps{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px}
+.steps li::marker{font-family:var(--display);font-weight:700;color:var(--accent)}
+
+details summary{cursor:pointer;font-family:var(--display);font-weight:700;font-size:21px;text-transform:uppercase;letter-spacing:.04em;list-style:none}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:" +";color:var(--accent)}
+details[open] summary::after{content:" −"}
+details .grid{margin-top:12px}
+details .inp input{font-size:22px}
+button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 14px;background:var(--accent);color:var(--accent-ink);cursor:pointer}
+button:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.saved{color:var(--good);font-weight:700;min-height:1.2em;margin:8px 0 0}
+
+footer .in{padding-block:20px calc(28px + env(safe-area-inset-bottom,0px));color:var(--muted);font-size:13px;display:flex;flex-direction:column;gap:4px}
+footer strong{color:var(--fg)}
+@media (prefers-reduced-motion:reduce){.verdict{transition:none}}
+</style>
+</head>
+<body>
+
+<header class="band">
+  <div class="in">
+    <a class="logo" href="./" aria-label="RouleJuste, accueil">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#2a312d"/><path d="M14 40 A18 18 0 0 1 22.46 24.74" stroke="#d9503f" stroke-width="6" fill="none"/><path d="M23.55 24.11 A18 18 0 0 1 40.45 24.11" stroke="#f2a33a" stroke-width="6" fill="none"/><path d="M41.54 24.74 A18 18 0 0 1 50 40" stroke="#2ea463" stroke-width="6" fill="none"/><line x1="32" y1="40" x2="43.5" y2="30.4" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/><circle cx="32" cy="40" r="5" fill="#ffffff"/><rect x="18" y="48" width="28" height="4" rx="2" fill="#4a544f"/></svg>
+      <b>Roule<span>Juste</span></b>
+    </a>
+    <p class="slogan">Ta sueur a un prix.<br><em>Ne roule plus à perte.</em></p>
+    <p class="lead">Avant d'accepter une course, sache ce qu'il te reste vraiment une fois la commission, l'essence et l'usure payées.</p>
+  </div>
+</header>
+
+<main>
+  <div class="in">
+    <div>
+      <h1>Je prends cette course&nbsp;?</h1>
+      <p class="sub">Entre le prix affiché et la distance. Le calcul se fait tout seul.</p>
+    </div>
+
+    <section class="card grid" aria-label="La course">
+      <div class="field full">
+        <label for="prix">Prix affiché</label>
+        <div class="inp"><input id="prix" type="number" inputmode="decimal" min="0" step="50" value="1500"><span>FCFA</span></div>
+      </div>
+      <div class="field">
+        <label for="kmCourse">Distance course</label>
+        <div class="inp"><input id="kmCourse" type="number" inputmode="decimal" min="0" step="0.5" value="4"><span>km</span></div>
+      </div>
+      <div class="field">
+        <label for="kmApproche">Aller au colis</label>
+        <div class="inp"><input id="kmApproche" type="number" inputmode="decimal" min="0" step="0.5" value="1"><span>km</span></div>
+      </div>
+      <div class="field full">
+        <label for="minutes">Durée totale estimée</label>
+        <div class="inp"><input id="minutes" type="number" inputmode="decimal" min="1" step="5" placeholder="auto"><span>min</span></div>
+        <span class="hint" id="minHint">Laisse vide pour une estimation automatique.</span>
+      </div>
+    </section>
+
+    <section class="verdict" id="verdict" aria-live="polite">
+      <span class="tag" id="vTag">—</span>
+      <span class="big" id="vBig">—</span>
+      <span id="vMsg"></span>
+    </section>
+
+    <section class="card kpis" aria-label="Résumé">
+      <div class="kpi"><b id="kGain">—</b><span>Ce qui te reste vraiment</span></div>
+      <div class="kpi"><b id="kMin">—</b><span>Prix minimum à accepter</span></div>
+    </section>
+
+    <section class="card">
+      <h2>Le détail</h2>
+      <table>
+        <tr><td>Prix affiché</td><td id="dPrix"></td></tr>
+        <tr><td id="dComLbl">Commission</td><td class="minus" id="dCom"></td></tr>
+        <tr><td id="dEssLbl">Essence</td><td class="minus" id="dEss"></td></tr>
+        <tr><td>Usure et réparations</td><td class="minus" id="dUsu"></td></tr>
+        <tr class="total"><td>Il te reste</td><td id="dNet"></td></tr>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Comment lire le verdict</h2>
+      <div class="scale" id="scale"></div>
+    </section>
+
+    <section class="card">
+      <h2>Comment ça marche</h2>
+      <ol class="steps">
+        <li><strong>Aller au colis</strong> : les km entre toi et l'expéditeur. Tu les roules, mais personne ne te les paie.</li>
+        <li><strong>Distance course</strong> : les km entre l'expéditeur et le client. C'est ce trajet que le prix paie.</li>
+        <li>On enlève la commission, l'essence et l'usure sur <strong>tous</strong> les km, puis on regarde combien ça fait <strong>par heure</strong>. C'est ça, ton vrai salaire.</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <details>
+        <summary>Mes réglages</summary>
+        <p class="hint" style="margin:8px 0 0">Paramètre tes propres valeurs : ta commission, la consommation de ta moto, ce que tu veux gagner par heure. Elles sont enregistrées automatiquement sur ce téléphone et restent là quand tu fermes la page et que tu reviens.</p>
+        <div class="grid">
+          <div class="field full"><label for="pCom">Commission</label><div class="inp"><input id="pCom" type="number" inputmode="decimal" step="0.5"><span>%</span></div></div>
+          <div class="field"><label for="pEkm">Essence par km</label><div class="inp"><input id="pEkm" type="number" inputmode="decimal" step="5"><span>FCFA</span></div></div>
+          <div class="field"><label for="pUsu">Usure par km</label><div class="inp"><input id="pUsu" type="number" inputmode="decimal" step="5"><span>FCFA</span></div></div>
+          <div class="field"><label for="pObj">Objectif / heure</label><div class="inp"><input id="pObj" type="number" inputmode="decimal" step="50"><span>FCFA</span></div></div>
+          <div class="field"><label for="pMin">Minimum / heure</label><div class="inp"><input id="pMin" type="number" inputmode="decimal" step="50"><span>FCFA</span></div></div>
+          <div class="field"><label for="pAtt">Attente fixe</label><div class="inp"><input id="pAtt" type="number" inputmode="decimal" step="1"><span>min</span></div></div>
+          <div class="field"><label for="pMpk">Minutes par km</label><div class="inp"><input id="pMpk" type="number" inputmode="decimal" step="0.5"><span>min</span></div></div>
+        </div>
+        <p class="hint">Essence : 30 FCFA/km correspond à une moto qui consomme 3 L aux 100 km avec un litre à 990 FCFA. Vérifie ta commission sur ton relevé.</p>
+        <p class="hint saved" id="saved" aria-live="polite"></p>
+        <div class="row"><button type="button" id="reset">Remettre les valeurs de départ</button></div>
+      </details>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="in">
+    <span><strong>Par un livreur, pour les livreurs.</strong> Gratuit, sans pub, sans inscription.</span>
+    <span>Outil indépendant, non affilié à aucun service de livraison. Les résultats sont des estimations.</span>
+  </div>
+</footer>
+
+<script>
+const DEF={pCom:23,pEkm:30,pUsu:20,pObj:1500,pMin:1000,pAtt:10,pMpk:3};
+const KEY='roulejuste-reglages';
+const $=id=>document.getElementById(id);
+const nf=n=>Math.round(n).toLocaleString('fr-FR').replace(/ | /g,' ');
+const fmt=n=>nf(n)+' FCFA';
+const num=id=>{const v=parseFloat(String($(id).value).replace(',','.'));return isNaN(v)?0:v};
+
+function loadSettings(){let s={};try{s=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}for(const k in DEF)$(k).value=(s[k]!==undefined?s[k]:DEF[k])}
+function saveSettings(){const s={};for(const k in DEF)s[k]=num(k);let ok=true;try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){ok=false}$('saved').textContent=ok?'✓ Réglages enregistrés sur ce téléphone':'Impossible d’enregistrer : la navigation privée bloque peut-être la sauvegarde.'}
+
+function calc(){
+  const prix=num('prix'), km=num('kmCourse')+num('kmApproche');
+  const com=num('pCom')/100, coutKm=num('pEkm')+num('pUsu');
+  const autoMin=num('pAtt')+num('pMpk')*km, userMin=num('minutes');
+  const minutes=userMin>0?userMin:autoMin;
+  $('minHint').textContent=userMin>0?'Durée saisie par toi.':'Estimation auto : '+Math.round(autoMin)+' min (attente + trajet). Tu peux la corriger.';
+  const cCom=prix*com, cEss=km*num('pEkm'), cUsu=km*num('pUsu');
+  const net=prix-cCom-cEss-cUsu;
+  const parH=minutes>0?net/minutes*60:0;
+  const obj=num('pObj'), mini=num('pMin');
+  const prixMin=(km*coutKm+obj*minutes/60)/((1-com)||1);
+
+  $('dPrix').textContent=fmt(prix);
+  $('dComLbl').textContent='Commission ('+num('pCom').toLocaleString('fr-FR')+' %)';
+  $('dCom').textContent='− '+fmt(cCom);
+  $('dEssLbl').textContent='Essence ('+km.toLocaleString('fr-FR')+' km)';
+  $('dEss').textContent='− '+fmt(cEss);
+  $('dUsu').textContent='− '+fmt(cUsu);
+  $('dNet').textContent=fmt(net);
+  $('kGain').textContent=fmt(net);
+  $('kMin').textContent=fmt(Math.ceil(prixMin/50)*50);
+
+  let cls,tag,msg;
+  if(net<=0){cls='v-bad';tag='Refuse';msg='Tu perds de l’argent sur cette course.'}
+  else if(parH<mini){cls='v-warn';tag='À éviter';msg='Tu ne perds pas d’argent, mais ton temps est très mal payé.'}
+  else if(parH<obj){cls='v-ok';tag='Acceptable';msg='Rentable, mais en dessous de ton objectif.'}
+  else{cls='v-good';tag='Prends-la';msg='Bonne course : elle paie ton temps correctement.'}
+  $('verdict').className='verdict '+cls;
+  $('vTag').textContent=tag;
+  $('vBig').innerHTML=nf(parH)+' <small>FCFA / heure</small>';
+  $('vMsg').textContent=msg+' ('+Math.round(minutes)+' min)';
+  $('scale').innerHTML=[
+    ['var(--good)','Prends-la',fmt(obj)+'/h ou plus'],
+    ['var(--ok)','Acceptable','entre '+fmt(mini)+' et '+fmt(obj)+'/h'],
+    ['var(--warn)','À éviter','moins de '+fmt(mini)+'/h'],
+    ['var(--bad)','Refuse','la course te coûte de l’argent']
+  ].map(r=>'<div><span class="dot" style="background:'+r[0]+'"></span><span><b>'+r[1]+'</b> : '+r[2]+'</span></div>').join('');
+}
+loadSettings();calc();
+document.querySelectorAll('input').forEach(i=>i.addEventListener('input',()=>{if(i.id in DEF)saveSettings();calc()}));
+$('reset').addEventListener('click',()=>{for(const k in DEF)$(k).value=DEF[k];saveSettings();calc()});
+</script>
+</body>
+</html>
